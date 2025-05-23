@@ -15,15 +15,15 @@ export default function AuthForm() {
   const [errorMessage, setErrorMessage] = useState('')
   const [emailError, setEmailError] = useState('')
   const [phoneError, setPhoneError] = useState('')
+  const [passwordError, setPasswordError] = useState('')
 
+  // Kiểm tra email
   const validateEmail = (email) => {
-    // Kiểm tra email rỗng
     if (!email) {
       setEmailError('Email không được để trống')
       return false
     }
 
-    // Kiểm tra định dạng email với domain cụ thể
     const emailRegex = /^[a-zA-Z0-9._-]+@(gmail\.com|stu\.ptit\.edu\.vn)$/
     if (!emailRegex.test(email)) {
       setEmailError('Email phải có định dạng @gmail.com hoặc @stu.ptit.edu.vn')
@@ -34,14 +34,39 @@ export default function AuthForm() {
     return true
   }
 
+  // Kiểm tra số điện thoại
   const validatePhone = (phone) => {
-    const phoneRegex = /^[0-9]{10}$/
+    const phoneRegex = /^(0|\+84)[0-9]{9}$/;
     if (!phoneRegex.test(phone)) {
-      setPhoneError('Số điện thoại phải có 10 chữ số')
-      return false
+      setPhoneError('Số điện thoại phải bắt đầu bằng 0 hoặc +84 và có 10 chữ số');
+      return false;
     }
-    setPhoneError('')
-    return true
+    setPhoneError('');
+    return true;
+  }
+
+  // Kiểm tra mật khẩu
+  const validatePassword = (password) => {
+    // Kiểm tra độ dài mật khẩu lớn hơn 6 ký tự
+    if (password.length <= 6) {
+      setPasswordError('Mật khẩu phải có độ dài lớn hơn 6 ký tự');
+      return false;
+    }
+    
+    // Kiểm tra mật khẩu có ít nhất một chữ cái
+    if (!/[a-zA-Z]/.test(password)) {
+      setPasswordError('Mật khẩu phải chứa ít nhất một chữ cái');
+      return false;
+    }
+
+    // Kiểm tra mật khẩu có ít nhất một chữ cái in hoa
+    if (!/[A-Z]/.test(password)) {
+      setPasswordError('Mật khẩu phải có ít nhất một chữ cái in hoa');
+      return false;
+    }
+
+    setPasswordError('');
+    return true;
   }
 
   const toggleMode = () => setIsLogin(!isLogin)
@@ -50,11 +75,12 @@ export default function AuthForm() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     
-    // Validate before submission
+    // Validate trước khi gửi dữ liệu
     const isEmailValid = validateEmail(email)
     const isPhoneValid = !isLogin ? validatePhone(phoneNumber) : true
+    const isPasswordValid = validatePassword(password)
 
-    if (!isEmailValid || !isPhoneValid) {
+    if (!isEmailValid || !isPhoneValid || !isPasswordValid) {
       return
     }
 
@@ -64,7 +90,7 @@ export default function AuthForm() {
           email,
           password
         })
-        
+
         localStorage.setItem('user', JSON.stringify({
           name: response.data.name || 'Người dùng',
           email: response.data.email,
@@ -83,7 +109,7 @@ export default function AuthForm() {
           password,
           phoneNumber
         })
-        
+
         toast.success("Đăng ký thành công!")
         setIsLogin(true)
       }
@@ -178,11 +204,13 @@ export default function AuthForm() {
                   id="password" 
                   type={showPassword ? "text" : "password"} 
                   value={password} 
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value)
+                    validatePassword(e.target.value)
+                  }}
                   placeholder="••••••••" 
                   className="pl-10 pr-10 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500" 
                   required
-                  minLength={6}
                 />
                 <button 
                   type="button" 
@@ -192,6 +220,7 @@ export default function AuthForm() {
                   {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
                 </button>
               </div>
+              {passwordError && <p className="text-red-500 text-xs mt-1">{passwordError}</p>}
               {isLogin && (
                 <div className="text-right">
                   <Link to="/forgotpassword" className="text-sm text-purple-600 hover:underline">

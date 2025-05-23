@@ -239,7 +239,7 @@ const handleBookClick = (bookId) => {
                     )}
                   </div>
 
-                  {/* Notifications Button */}
+                  {/* Notifications Button
                   <div className="relative">
                     <Bell className="h-6 w-6 cursor-pointer text-gray-600 hover:text-blue-600" />
                     {notifications.length > 0 && (
@@ -247,7 +247,7 @@ const handleBookClick = (bookId) => {
                         {notifications.length}
                       </span>
                     )}
-                  </div>
+                  </div> */}
 
                   {/* User Profile Dropdown */}
                   <div
